@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Carteira Inteligente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f111a;
+            --card: rgba(255,255,255,0.05);
+            --border: rgba(255,255,255,0.1);
+            --text: #f0f0f0;
+            --muted: #9ea0a8;
+            --accent: #8a2be2;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            background-image: radial-gradient(circle at top right, rgba(138,43,226,0.2), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(0,255,204,0.1), transparent 40%);
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            backdrop-filter: blur(12px);
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #8a2be2, #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        p.subtitle { color: var(--muted); margin-bottom: 30px; font-size: 0.95rem; }
+        label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+        input {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 14px;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: var(--accent); }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #8a2be2, #00ffcc);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        button:hover { opacity: 0.85; transform: translateY(-2px); }
+        .footer-link { text-align: center; margin-top: 20px; color: var(--muted); font-size: 0.9rem; }
+        .footer-link a { color: #00ffcc; text-decoration: none; }
+        #msg { border-radius: 8px; padding: 12px; margin-bottom: 16px; display: none; font-size: 0.9rem; }
+        #msg.error { color: #ff3366; background: rgba(255,51,102,0.1); }
+        #msg.success { color: #00ffcc; background: rgba(0,255,204,0.1); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Criar Conta</h1>
+        <p class="subtitle">Cadastre-se e comece a gerenciar seus investimentos com inteligência.</p>
+        <div id="msg"></div>
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="seu@email.com">
+        <label for="password">Senha</label>
+        <input type="password" id="password" placeholder="Mínimo 8 caracteres">
+        <button onclick="register()">Criar Conta</button>
+        <div class="footer-link">Já tem conta? <a href="/login">Entrar</a></div>
+    </div>
+    <script>
+        async function register() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msgEl = document.getElementById('msg');
+            msgEl.style.display = 'none';
+            msgEl.className = '';
+
+            if (!email || !password || password.length < 8) {
+                msgEl.textContent = 'Email válido e senha com ao menos 8 caracteres são obrigatórios.';
+                msgEl.className = 'error';
+                msgEl.style.display = 'block';
+                return;
+            }
+
+            const res = await fetch('/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const text = await res.text();
+            if (res.ok) {
+                msgEl.textContent = '✅ ' + text + ' Redirecionando...';
+                msgEl.className = 'success';
+                msgEl.style.display = 'block';
+                setTimeout(() => window.location.href = '/login', 1500);
+            } else {
+                msgEl.textContent = text;
+                msgEl.className = 'error';
+                msgEl.style.display = 'block';
+            }
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Enter') register(); });
+    </script>
+</body>
+</html>

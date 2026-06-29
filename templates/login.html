@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Carteira Inteligente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f111a;
+            --card: rgba(255,255,255,0.05);
+            --border: rgba(255,255,255,0.1);
+            --text: #f0f0f0;
+            --muted: #9ea0a8;
+            --accent: #00ffcc;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            background-image: radial-gradient(circle at top left, rgba(0,255,204,0.15), transparent 40%),
+                              radial-gradient(circle at bottom right, rgba(138,43,226,0.15), transparent 40%);
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            backdrop-filter: blur(12px);
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #00ffcc, #8a2be2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        p.subtitle { color: var(--muted); margin-bottom: 30px; font-size: 0.95rem; }
+        label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+        input {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 14px;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: var(--accent); }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        button:hover { opacity: 0.85; transform: translateY(-2px); }
+        .footer-link { text-align: center; margin-top: 20px; color: var(--muted); font-size: 0.9rem; }
+        .footer-link a { color: var(--accent); text-decoration: none; }
+        #error-msg { color: #ff3366; background: rgba(255,51,102,0.1); border-radius: 8px; padding: 12px; margin-bottom: 16px; display: none; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Bem-vindo</h1>
+        <p class="subtitle">Faça login para acessar sua carteira de investimentos.</p>
+        <div id="error-msg"></div>
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="seu@email.com">
+        <label for="password">Senha</label>
+        <input type="password" id="password" placeholder="••••••••">
+        <button onclick="login()">Entrar</button>
+        <div class="footer-link">Ainda não tem conta? <a href="/register">Cadastre-se</a></div>
+    </div>
+    <script>
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('error-msg');
+            errorEl.style.display = 'none';
+
+            if (!email || !password) {
+                errorEl.textContent = 'Preencha email e senha.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            const res = await fetch('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ email, password })
+            });
+
+            if (res.ok) {
+                window.location.href = '/';
+            } else {
+                const msg = await res.text();
+                errorEl.textContent = msg;
+                errorEl.style.display = 'block';
+            }
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+    </script>
+</body>
+</html>

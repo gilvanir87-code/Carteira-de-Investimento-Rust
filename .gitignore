@@ -1,0 +1,5 @@
+/target
+.env
+*.db
+portfolio.json
+scratch_test.rs
